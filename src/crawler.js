@@ -1,10 +1,10 @@
-function Crawler( callbacks ) {
+function Crawler( settings = {} ) {
 
 	/**
 	 * Total number of URLs to crawl
 	 * @type {Number}
 	 */
-	this.limit = 200;
+	this.limit = settings.limit || 200;
 
 	/**
 	 * Keep track of the current iteration count
@@ -16,7 +16,7 @@ function Crawler( callbacks ) {
 	 * Store baseURL
 	 * @type {String}
 	 */
-	this.baseURL = window.location.origin;
+	this.baseURL = settings.baseURL || window.location.origin;
 
 	/**
 	 * Reference to the current processing URL
