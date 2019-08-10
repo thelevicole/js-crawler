@@ -123,9 +123,9 @@ Crawler.prototype.cleanURL = function( url ) {
 	const isAbsolute = pattern.test( url );
 
 	/**
-	 * Try and check if url is local to the current site, or not an image, if not return null
+	 * Try and check if url is local to the current site, or not a hash url, if not return null
 	 */
-	if ( !isAbsolute && ( /^https?:/i.test( url ) || /^www\./i.test( url ) ) ) {
+	if ( !isAbsolute && ( /^https?:/i.test( url ) || /^www\./i.test( url ) || /^#/i.test( url ) ) ) {
 		return null;
 	}
 
@@ -275,10 +275,14 @@ Crawler.prototype.crawlURL = function( url ) {
 	request.send();
 };
 
+const crawlLimit = parseInt( prompt( 'Set the crawl limit with the field below. Set to `-1` for infinity URLs. Default is 200.' ) ) || null;
+
 /**
  * Initiate crawler on load
  */
-const runner = new Crawler();
+const runner = new Crawler( {
+	limit: crawlLimit
+} );
 
 runner.on( 'crawl.single.start', ( url ) => {
 	console.log( `${runner.currentIteration}/${runner.queue.length}` );
