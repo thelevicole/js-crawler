@@ -290,6 +290,52 @@ runner.on( 'crawl.single.start', ( url ) => {
 
 
 runner.on( 'crawl.end', () => {
-	console.log( runner.results );
+
+	let table = [];
+
+	table.push( '<table width="100%" cellpadding="5" cellspacing="2" border="1">' );
+
+	table.push( '<tr>' );
+		table.push( '<td>URL</td>' );
+		table.push( '<td>Status</td>' );
+		table.push( '<td>Title</td>' );
+		table.push( '<td>H1</td>' );
+	table.push( '</tr>' );
+
+	for ( var url in runner.results ) {
+		const result = runner.results[ url ];
+		let title = '';
+		let h1 = '';
+
+		if ( result.status === 200 ) {
+			const dom = new DOMParser().parseFromString( result.response, 'text/html' );
+
+			const titleElement = dom.querySelector( 'title' );
+			const h1Elements = dom.getElementsByTagName( 'h1' );
+
+			if ( titleElement ) {
+				title = titleElement.innerText;
+			}
+
+			if ( h1Elements.length && h1Elements[ 0 ] ) {
+				h1 = h1Elements[ 0 ].innerText;
+			}
+		}
+
+		table.push( '<tr>' );
+			table.push( `<td>${url}</td>` );
+			table.push( `<td>${result.status}</td>` );
+			table.push( `<td>${title}</td>` );
+			table.push( `<td>${h1}</td>` );
+		table.push( '</tr>' );
+
+	}
+
+	table.push( '</table>' );
+
+	var newWindow = window.open();
+	newWindow.document.write( table.join( '' ) );
+	newWindow.focus();
+
 } );
 
