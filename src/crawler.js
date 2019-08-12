@@ -275,7 +275,7 @@ Crawler.prototype.crawlURL = function( url ) {
 	request.send();
 };
 
-const crawlLimit = parseInt( prompt( 'Set the crawl limit with the field below. Set to `-1` for infinity URLs. Default is 200.' ) ) || null;
+const crawlLimit = parseInt( prompt( 'Set the crawl limit with the field below. Set to `-1` for infinate crawling. Default is limit is 200.' ) ) || null;
 
 /**
  * Initiate crawler on load
