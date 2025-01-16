@@ -13,6 +13,12 @@ function Crawler( settings = {} ) {
 	this.currentIteration = 0;
 
 	/**
+	 * Keep track of the maximum iteration count
+	 * @type {Number}
+	 */
+	this.totalIterations = 0;
+
+	/**
 	 * Store baseURL
 	 * @type {String}
 	 */
@@ -206,7 +212,7 @@ Crawler.prototype.crawlURL = function( url ) {
 	const self = this;
 
 	// Increase the iteration cound
-	this.currentIteration++;
+	self.currentIteration++;
 
 	// Store the current url
 	self.currentURL = url;
@@ -216,6 +222,10 @@ Crawler.prototype.crawlURL = function( url ) {
 
 	// Send event
 	self.trigger( 'crawl.single.start', url );
+
+	if ( self.queue.length > this.totalIterations ) {
+		self.totalIterations = self.queue.length;
+	}
 
 	// Create request
 	const request = new XMLHttpRequest();
@@ -285,7 +295,7 @@ const runner = new Crawler( {
 } );
 
 runner.on( 'crawl.single.start', ( url ) => {
-	console.log( `${runner.currentIteration}/${runner.queue.length}` );
+	console.log( `${runner.currentIteration}/${runner.totalIterations}` );
 } );
 
 
@@ -299,22 +309,36 @@ runner.on( 'crawl.end', () => {
 		table.push( '<td>URL</td>' );
 		table.push( '<td>Status</td>' );
 		table.push( '<td>Title</td>' );
+		table.push( '<td>Description</td>' );
+		table.push( '<td>Keywords</td>' );
 		table.push( '<td>H1</td>' );
 	table.push( '</tr>' );
 
 	for ( var url in runner.results ) {
 		const result = runner.results[ url ];
 		let title = '';
+		let description = '';
+		let keywords = '';
 		let h1 = '';
 
 		if ( result.status === 200 ) {
 			const dom = new DOMParser().parseFromString( result.response, 'text/html' );
 
 			const titleElement = dom.querySelector( 'title' );
+			const descriptionElement = dom.querySelector( 'meta[name="description"]' );
+			const keywordsElement = dom.querySelector( 'meta[name="keywords"]' );
 			const h1Elements = dom.getElementsByTagName( 'h1' );
 
 			if ( titleElement ) {
 				title = titleElement.innerText;
+			}
+
+			if ( descriptionElement ) {
+				description = descriptionElement.content;
+			}
+
+			if ( keywordsElement ) {
+				keywords = keywordsElement.content;
 			}
 
 			if ( h1Elements.length && h1Elements[ 0 ] ) {
@@ -326,6 +350,8 @@ runner.on( 'crawl.end', () => {
 			table.push( `<td>${url}</td>` );
 			table.push( `<td>${result.status}</td>` );
 			table.push( `<td>${title}</td>` );
+			table.push( `<td>${description}</td>` );
+			table.push( `<td>${keywords}</td>` );
 			table.push( `<td>${h1}</td>` );
 		table.push( '</tr>' );
 
